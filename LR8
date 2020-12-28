@@ -1,0 +1,132 @@
+#include <iostream>
+#include <locale.h>
+
+using namespace std;
+template <class T1>
+class Cls {
+	T1 x;
+public:
+	Cls() :x(0) {}
+	void set(int X) { x = X; }
+	void add(int X) { x += X; }
+	void withdraw(int X) {
+		if (X > x) { cout<< "Недостаточно денег для проведения операции" << endl; }
+		else { x -= X; }
+	}
+	T1 get() { return x; }
+};
+
+template <class T2>
+class Tran
+{
+	T2* that;
+	T2* prev;
+public:
+	Tran() :prev(NULL), that(new T2) {}
+	Tran(const Tran& obj) :
+		that(new T2(*(obj.that))), prev(NULL) {}
+	~Tran() { delete that; delete prev; }
+	Tran& operator = (const Tran& obj);
+	void Show(int);
+	int BeginSetTrans();
+	int BeginPutTrans(int);
+	int BeginWithdrawTrans(int);
+	void Commit();
+	void DeleteTrans();
+	T2* operator->();
+};
+
+template <class T2>
+Tran<T2>& Tran<T2>::operator=(const Tran <T2>& obj) {
+	if (this != &obj) {
+		delete that;
+		that = new T2(*(obj.that));
+	}
+	return *this;
+}
+
+template <class T2>
+T2* Tran<T2>::operator->()
+{
+	return that;
+}
+template<class T2>
+void Tran<T2>::Show(int fl) {
+	cout << "cостояние объекта";
+	if (!fl)cout << " до начала транзакции" << endl;
+	else cout << " после выполнения транзакции" << endl;
+	if (prev)cout << "prev = NULL" << endl;
+	cout << "that = " << that->get() << endl;
+}
+
+template<class T2>
+int Tran<T2>::BeginPutTrans(int amount) {
+	delete prev;
+	prev = that;
+	that = new T2(*prev);
+	if (!that)return 0;
+	that->add(amount);
+	return 1;
+}
+
+template<class T2>
+int Tran<T2>::BeginSetTrans() {
+	delete prev;
+	prev = that;
+	that = new T2(*prev);
+	if (!that)return 0;
+	that->set(7);
+	return 1;
+}
+
+template<class T2>
+int Tran<T2>::BeginWithdrawTrans(int amount) {
+	delete prev;
+	prev = that;
+	that = new T2(*prev);
+	if (!that)return 0;
+	that->withdraw(amount);
+	return 1;
+}
+
+template<class T2>
+void Tran<T2>::Commit() {
+	delete prev;
+	prev = NULL;
+}
+template<class T2>
+void Tran<T2>::DeleteTrans() {
+	if (prev != NULL) {
+		delete that;
+		that = prev;
+		prev = NULL;
+	}
+}
+
+using namespace std;
+int main()
+{
+	Tran < Cls <int> >tr;
+	setlocale(LC_ALL, "Russian");
+	tr->set(15);
+	cout<< "ust"<< endl;
+	tr.Show(0);
+	if (tr.BeginPutTrans(10)) {
+		tr.Show(1);
+		tr.Commit();
+	}
+	cout << "ust" << endl;
+	tr.DeleteTrans();
+	tr.Show(0);
+	if (tr.BeginPutTrans(15)) {
+		tr.Show(1);
+		tr.Commit();
+	}
+	tr.Show(0);
+	if (tr.BeginWithdrawTrans(10)) {
+		tr.Show(1);
+		tr.Commit();
+	}
+	tr.Show(0);
+	return 0;
+}
