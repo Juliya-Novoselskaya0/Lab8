@@ -2,9 +2,9 @@
 #include <locale.h>
 
 using namespace std;
-template <class T1>
+template <class T>
 class Cls {
-	T1 x;
+	T x;
 public:
 	Cls() :x(0) {}
 	void set(int X) { x = X; }
@@ -13,45 +13,46 @@ public:
 		if (X > x) { cout<< "Недостаточно денег для проведения операции" << endl; }
 		else { x -= X; }
 	}
-	T1 get() { return x; }
+	T get() { return x; }
 };
 
-template <class T2>
-class Tran
+template <class TT>
+class Transaction
 {
-	T2* that;
-	T2* prev;
+	TT* that;
+	TT* prev;
 public:
-	Tran() :prev(NULL), that(new T2) {}
-	Tran(const Tran& obj) :
-		that(new T2(*(obj.that))), prev(NULL) {}
-	~Tran() { delete that; delete prev; }
-	Tran& operator = (const Tran& obj);
+	Transaction() :prev(NULL), that(new TT) {}
+	Transaction(const Transaction& obj) :
+		that(new TT(*(obj.that))), prev(NULL) {}
+	~Transaction() { delete that; delete prev; }
+	Transaction& operator = (const Transaction& obj);
 	void Show(int);
-	int BeginSetTrans();
-	int BeginPutTrans(int);
-	int BeginWithdrawTrans(int);
+	int BeginSetTransaction();
+	int BeginPutTransaction(int);
+	int BeginWithdrawTransaction(int);
 	void Commit();
-	void DeleteTrans();
-	T2* operator->();
+	void DeleteTransaction();
+	TT* operator->();
 };
 
-template <class T2>
-Tran<T2>& Tran<T2>::operator=(const Tran <T2>& obj) {
+template <class TT>
+Transaction<TT>& Transaction<TT>::operator=(const Transaction <TT>& obj) {
 	if (this != &obj) {
 		delete that;
-		that = new T2(*(obj.that));
+		that = new TT(*(obj.that));
 	}
 	return *this;
 }
 
-template <class T2>
-T2* Tran<T2>::operator->()
+template <class TT>
+TT* Transaction<TT>::operator->()
 {
 	return that;
 }
-template<class T2>
-void Tran<T2>::Show(int fl) {
+
+template<class TT>
+void Transaction<TT>::Show(int fl) {
 	cout << "cостояние объекта";
 	if (!fl)cout << " до начала транзакции" << endl;
 	else cout << " после выполнения транзакции" << endl;
@@ -59,43 +60,43 @@ void Tran<T2>::Show(int fl) {
 	cout << "that = " << that->get() << endl;
 }
 
-template<class T2>
-int Tran<T2>::BeginPutTrans(int amount) {
+template<class TT>
+int Transaction<TT>::BeginPutTransaction(int amount) {
 	delete prev;
 	prev = that;
-	that = new T2(*prev);
+	that = new TT(*prev);
 	if (!that)return 0;
 	that->add(amount);
 	return 1;
 }
 
-template<class T2>
-int Tran<T2>::BeginSetTrans() {
+template<class TT>
+int Transaction<TT>::BeginSetTransaction() {
 	delete prev;
 	prev = that;
-	that = new T2(*prev);
+	that = new TT(*prev);
 	if (!that)return 0;
 	that->set(7);
 	return 1;
 }
 
-template<class T2>
-int Tran<T2>::BeginWithdrawTrans(int amount) {
+template<class TT>
+int Transaction<TT>::BeginWithdrawTransaction(int amount) {
 	delete prev;
 	prev = that;
-	that = new T2(*prev);
+	that = new TT(*prev);
 	if (!that)return 0;
 	that->withdraw(amount);
 	return 1;
 }
 
-template<class T2>
-void Tran<T2>::Commit() {
+template<class TT>
+void Transaction<TT>::Commit() {
 	delete prev;
 	prev = NULL;
 }
-template<class T2>
-void Tran<T2>::DeleteTrans() {
+template<class TT>
+void Transaction<TT>::DeleteTransaction() {
 	if (prev != NULL) {
 		delete that;
 		that = prev;
@@ -106,24 +107,25 @@ void Tran<T2>::DeleteTrans() {
 using namespace std;
 int main()
 {
-	Tran < Cls <int> >tr;
 	setlocale(LC_ALL, "Russian");
+
+	Transaction < Cls <int> >tr;
 	tr->set(15);
 	cout<< "ust"<< endl;
 	tr.Show(0);
-	if (tr.BeginPutTrans(10)) {
+	if (tr.BeginPutTransaction(10)) {
 		tr.Show(1);
 		tr.Commit();
 	}
 	cout << "ust" << endl;
-	tr.DeleteTrans();
+	tr.DeleteTransaction();
 	tr.Show(0);
-	if (tr.BeginPutTrans(15)) {
+	if (tr.BeginPutTransaction(15)) {
 		tr.Show(1);
 		tr.Commit();
 	}
 	tr.Show(0);
-	if (tr.BeginWithdrawTrans(10)) {
+	if (tr.BeginWithdrawTransaction(10)) {
 		tr.Show(1);
 		tr.Commit();
 	}
