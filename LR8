@@ -3,10 +3,10 @@
 
 using namespace std;
 template <class T>
-class Cls {
+class bankAcc {
 	T x;
 public:
-	Cls() :x(0) {}
+	bankAcc() :x(0) {}
 	void set(int X) { x = X; }
 	void add(int X) { x += X; }
 	void withdraw(int X) {
@@ -109,15 +109,13 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 
-	Transaction < Cls <int> >tr;
+	Transaction < bankAcc <int> >tr;
 	tr->set(15);
-	cout<< "ust"<< endl;
 	tr.Show(0);
 	if (tr.BeginPutTransaction(10)) {
 		tr.Show(1);
 		tr.Commit();
 	}
-	cout << "ust" << endl;
 	tr.DeleteTransaction();
 	tr.Show(0);
 	if (tr.BeginPutTransaction(15)) {
